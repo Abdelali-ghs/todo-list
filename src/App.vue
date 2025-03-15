@@ -1,26 +1,66 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <form action="" @submit.prevent="addTodo">
+    <fieldset role="group">
+      <input v-model="newTodo" type="text" placeholder="Tache a effecruer">
+      <button :disabled="newTodo.length===0">Ajouter</button>
+    </fieldset>
+  </form>
+  
+  <div v-if="todos.length===0">Vous n'avez pas de taches a faire</div>
+  <div v-else>
+    <ul>
+      <li v-for="todo in sortedTodos()" :key="todo.date" :class="{completed: todo.completed}">
+        <label>
+          <input type="checkbox" v-model="todo.completed">
+          {{ todo.title }}
+        </label>
+      </li>
+    </ul>
+    <label for="">
+      <input type="checkbox" v-model="hideCompleted">
+      Masquer les taches completees
+    </label>
+  </div>
 </template>
 
-<script>
-import HelloWorld from './components/HelloWorld.vue'
+<script setup>
+import {ref} from 'vue'
 
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
+const newTodo = ref('')
+const hideCompleted = ref(false)
+const todos = ref([{
+  title:'tache de test',
+  completed:true,
+  date:1
+},{
+  title:'tache a faire',
+  completed:false,
+  date:2
 }
+])
+
+const addTodo = () => {
+  todos.value.push ({
+    title: newTodo.value,
+    completed: false,
+    date: Date.now()
+  })
+  newTodo.value = ''
+}
+
+const sortedTodos = () => {
+  const sortedTodos = todos.value.toSorted((a,b) => a.completed > b.completed ? 1 : -1)
+  if (hideCompleted.value === true) {
+    return sortedTodos.filter(t => t.completed === false)
+  }
+  return sortedTodos
+}
+
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+.completed {
+  opacity:.5 ;
+  text-decoration: line-through;
 }
 </style>
